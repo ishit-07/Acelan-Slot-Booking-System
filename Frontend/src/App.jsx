@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, lazy, Suspense } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense, useCallback } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getBookings, createBooking, deleteBooking, getBookingById } from "./services/bookingApi";
@@ -60,7 +60,8 @@ function App() {
     }
   }, [toast]);
 
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
+    await Promise.resolve();
     setIsLoading(true);
     try {
       const dateStr = formatDateString(selectedDate);
@@ -71,11 +72,11 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedDate]);
 
   useEffect(() => {
     fetchBookings();
-  }, [selectedDate]);
+  }, [fetchBookings]);
 
   const handleSlotSelect = (slot) => {
     setSelectedSlot(slot);
@@ -136,14 +137,11 @@ function App() {
     const booked = isBooked(slotStr);
     const selected = selectedSlot === slotStr;
 
-    let buttonClass = "";
-    if (booked) {
-      buttonClass = "bg-red-500 text-white cursor-not-allowed border border-red-600 py-3 px-4 rounded text-center shadow-sm w-full";
-    } else if (selected) {
-      buttonClass = "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer py-3 px-4 rounded text-center font-semibold shadow-md w-full transition duration-150";
-    } else {
-      buttonClass = "bg-green-600 text-white hover:bg-green-700 cursor-pointer py-3 px-4 rounded text-center font-semibold shadow-sm w-full transition duration-150";
-    }
+    const buttonClass = booked
+      ? "bg-red-500 text-white cursor-not-allowed border border-red-600 py-3 px-4 rounded text-center shadow-sm w-full"
+      : selected
+      ? "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer py-3 px-4 rounded text-center font-semibold shadow-md w-full transition duration-150"
+      : "bg-green-600 text-white hover:bg-green-700 cursor-pointer py-3 px-4 rounded text-center font-semibold shadow-sm w-full transition duration-150";
 
     return (
       <button
