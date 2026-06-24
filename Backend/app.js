@@ -1,8 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import mongoose from "mongoose";
 import bookingRoutes from "./src/routes/bookingRoutes.js";
+import { connectDB } from "./src/config/db.js";
 
 dotenv.config();
 
@@ -14,12 +14,8 @@ app.use(express.json());
 
 app.use("/api/bookings", bookingRoutes);
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error("Database connection failed:", error);
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
   });
+});
